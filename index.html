@@ -10,7 +10,7 @@
         :root { --primary: #e50914; --bg: #000; }
         body { background: var(--bg); color: white; font-family: 'Segoe UI', Arial, sans-serif; margin: 0; overflow: hidden; }
         
-        /* Navbar - Sabit ve düzgün */
+        /* Navbar */
         nav { background: #000; padding: 0 5%; display: flex; align-items: center; position: fixed; width: 100%; z-index: 1000; box-sizing: border-box; height: 60px; border-bottom: 1px solid #222; }
         .logo { color: var(--primary); font-size: 22px; font-weight: bold; }
 
@@ -24,32 +24,25 @@
         .slider::-webkit-scrollbar { display: none; }
         .movie-card { min-width: 150px; max-width: 150px; outline: none; border: 2px solid transparent; border-radius: 4px; transition: 0.3s; background: #111; cursor: pointer; }
         .movie-card img { width: 100%; height: 220px; object-fit: cover; border-radius: 4px; }
-        .movie-card:focus { transform: scale(1.08); border-color: white; z-index: 10; }
+        .movie-card:focus, .movie-card:hover { transform: scale(1.05); border-color: white; z-index: 10; }
         .movie-name { font-size: 13px; margin: 6px 0; text-align: center; height: 34px; overflow: hidden; color: #aaa; padding: 0 5px; }
 
-        /* Detay Görünümü - TAŞMA SORUNU GİDERİLDİ */
+        /* Detay Görünümü - Tam Duyarlı */
         #detailView { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; display: none; }
         .detail-banner { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; opacity: 0.4; z-index: -1; }
         
-        /* Bilgiler ekranın ortasına ve sığacak şekilde ayarlandı */
         .detail-info { 
             position: relative; height: 100%; padding: 0 8%; 
             display: flex; flex-direction: column; justify-content: center; 
             gap: 15px; z-index: 2100; 
-            background: linear-gradient(to right, #000 45%, transparent 100%); 
+            background: linear-gradient(to right, #000 40%, transparent 100%); 
         }
         
-        /* Yazı boyutları ekrana göre küçülür (Responsive) */
-        .detail-title { font-size: clamp(22px, 5vw, 42px); margin: 0; font-weight: bold; line-height: 1.1; max-width: 80%; }
-        
-        /* Özet kısmını sınırladık ki Oynat butonu yukarı çıksın */
-        .detail-desc { 
-            font-size: clamp(13px, 2vw, 17px); line-height: 1.4; color: #ccc; 
-            max-width: 450px; max-height: 120px; overflow-y: auto; margin: 0; 
-        }
+        .detail-title { font-size: clamp(20px, 5vw, 40px); margin: 0; font-weight: bold; line-height: 1.1; max-width: 85%; }
+        .detail-desc { font-size: clamp(13px, 2vw, 16px); line-height: 1.4; color: #ccc; max-width: 450px; max-height: 100px; overflow-y: auto; margin: 0; }
 
-        .play-btn { background: white; color: black; border: none; padding: 14px 45px; font-size: 18px; font-weight: bold; border-radius: 4px; outline: none; cursor: pointer; width: fit-content; transition: 0.2s; margin-top: 10px; }
-        .play-btn:focus { background: var(--primary); color: white; transform: scale(1.1); }
+        .play-btn { background: white; color: black; border: none; padding: 12px 40px; font-size: 18px; font-weight: bold; border-radius: 4px; outline: none; cursor: pointer; width: fit-content; transition: 0.2s; margin-top: 10px; }
+        .play-btn:focus, .play-btn:hover { background: var(--primary); color: white; transform: scale(1.1); }
 
         /* Video Player */
         #player { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 5000; display: none; }
@@ -69,7 +62,6 @@
 
     function loadDatabase() {
         const xhr = new XMLHttpRequest();
-        // GitHub üzerindeki JSON dosyasını çekiyoruz
         xhr.open("GET", "youtube_filmleri_pro_database.json", true);
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4 && xhr.status === 200) {
@@ -106,7 +98,6 @@
         });
 
         initLazyLoading();
-        setTimeout(() => document.querySelector('.movie-card')?.focus(), 500);
     }
 
     function initLazyLoading() {
@@ -141,14 +132,9 @@
 
     function startVideo(id) {
         document.getElementById('player').style.display = 'block';
-        // 153 HATASI İÇİN EN KRİTİK NOKTA: window.location.origin
-        // Bu, YouTube'a 'ben tutarbu.github.io sitesinden geliyorum' der.
         const origin = window.location.origin;
-        const ytUrl = `https://www.youtube.com/embed/${id}?autoplay=1&origin=${origin}&enablejsapi=1&rel=0&widget_referrer=${origin}`;
-        
-        document.getElementById('videoContainer').innerHTML = `
-            <iframe src="${ytUrl}" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-        `;
+        const ytUrl = `https://www.youtube.com/embed/${id}?autoplay=1&origin=${origin}&enablejsapi=1&rel=0`;
+        document.getElementById('videoContainer').innerHTML = `<iframe src="${ytUrl}" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
     }
 
     function handleGlobalKeys(e) {
@@ -156,10 +142,8 @@
             if (document.getElementById('player').style.display === 'block') {
                 document.getElementById('player').style.display = 'none';
                 document.getElementById('videoContainer').innerHTML = '';
-                document.getElementById('playBtn').focus();
             } else if (document.getElementById('detailView').style.display === 'block') {
                 document.getElementById('detailView').style.display = 'none';
-                document.querySelector('.movie-card:focus')?.focus();
             }
         }
     }
