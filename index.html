@@ -28,15 +28,41 @@
         .movie-card:focus { transform: scale(1.08); border-color: white; z-index: 10; }
         .movie-name { font-size: 14px; margin-top: 8px; text-align: center; height: 35px; overflow: hidden; color: #ccc; padding: 0 5px; }
 
-        /* Full Screen Player & Detail */
-        #detailView { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; display: none; }
-        .detail-banner { height: 100vh; background-size: cover; background-position: center; opacity: 0.3; }
-        .detail-info { position: absolute; top: 15%; left: 6%; z-index: 2100; max-width: 50%; }
+        /* Detay Görünümü - Sığma Sorunu Çözüldü */
+        #detailView { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: #000; 
+            z-index: 2000; 
+            display: none; 
+            overflow-y: auto; 
+        }
+        .detail-banner { 
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover; 
+            background-position: center; 
+            opacity: 0.3; 
+            z-index: -1;
+        }
+        .detail-info { 
+            padding: 100px 6% 50px 6%; 
+            max-width: 80%; 
+            position: relative;
+            z-index: 2100;
+        }
+        
         #player { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 5000; display: none; }
         #player iframe { width: 100%; height: 100%; border: none; }
         
-        .play-btn { background: white; color: black; border: none; padding: 15px 50px; font-size: 22px; font-weight: bold; border-radius: 5px; outline: none; cursor: pointer; margin-top: 20px; }
-        .play-btn:focus { background: var(--primary); color: white; }
+        .play-btn { background: white; color: black; border: none; padding: 20px 60px; font-size: 24px; font-weight: bold; border-radius: 8px; outline: none; cursor: pointer; margin-top: 30px; }
+        .play-btn:focus { background: var(--primary); color: white; transform: scale(1.1); }
     </style>
 </head>
 <body onkeydown="handleGlobalKeys(event)">
@@ -53,12 +79,11 @@
 <script>
     let movies = [];
 
-    // Veritabanını GitHub üzerinden yükle
     function loadDatabase() {
         const xhr = new XMLHttpRequest();
         xhr.open("GET", "youtube_filmleri_pro_database.json", true);
         xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4 && (xhr.status === 200 || xhr.status === 0)) {
+            if (xhr.readyState === 4 && xhr.status === 200) {
                 movies = JSON.parse(xhr.responseText);
                 showHome();
             }
@@ -71,7 +96,6 @@
         container.innerHTML = '';
         const genres = {};
         
-        // Türleri kategorize et
         movies.forEach(m => {
             if (m.tur) {
                 m.tur.split(',').forEach(t => {
@@ -94,7 +118,6 @@
         });
 
         initLazyLoading();
-        // İlk karta odaklan
         setTimeout(() => document.querySelector('.movie-card')?.focus(), 500);
     }
 
@@ -114,20 +137,28 @@
     function openDetail(id) {
         const m = movies.find(x => x.film_id === id);
         const ytId = m.yt_link.split('v=')[1];
+        
         document.getElementById('detailDynamic').innerHTML = `
             <div class="detail-banner" style="background-image: url('${m.afis || m.yt_poster}')"></div>
             <div class="detail-info">
                 <h1 style="font-size: 45px; margin:0;">${m.film_adi}</h1>
-                <p style="font-size: 18px; line-height: 1.4; margin: 20px 0;">${m.ozet || 'Özet bulunamadı.'}</p>
+                <p style="font-size: 20px; line-height: 1.6; margin: 20px 0; max-height: 250px; overflow-y: auto; color: #ccc;">
+                    ${m.ozet || 'Bu film için özet bilgisi bulunamadı.'}
+                </p>
                 <button id="playBtn" class="play-btn" tabindex="3" onclick="startVideo('${ytId}')">OYNAT</button>
             </div>`;
+        
         document.getElementById('detailView').style.display = 'block';
-        document.getElementById('playBtn').focus();
+        setTimeout(() => {
+            const btn = document.getElementById('playBtn');
+            btn.focus();
+            btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 150);
     }
 
     function startVideo(id) {
         document.getElementById('player').style.display = 'block';
-        // 153 HATASI İÇİN EN ÖNEMLİ ADRES DOĞRULAMASI
+        // 153 Hatası Çözümü: Origin parametresi GitHub linkine göre dinamik gelir
         const origin = window.location.origin;
         const ytUrl = `https://www.youtube.com/embed/${id}?autoplay=1&origin=${origin}&enablejsapi=1&rel=0&widget_referrer=${origin}`;
         
@@ -137,7 +168,6 @@
     }
 
     function handleGlobalKeys(e) {
-        // Geri tuşu (Backspace) veya Escape
         if (e.key === "Backspace" || e.key === "Escape") {
             if (document.getElementById('player').style.display === 'block') {
                 document.getElementById('player').style.display = 'none';
