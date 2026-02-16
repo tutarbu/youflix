@@ -3,62 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <meta name="referrer" content="no-referrer">
     <title>YouFlix TV</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root { --primary: #e50914; --bg: #000; }
         body { background: var(--bg); color: white; font-family: 'Segoe UI', Arial, sans-serif; margin: 0; overflow: hidden; }
-        
-        /* Navbar */
-        nav { background: #000; padding: 0 5%; display: flex; align-items: center; position: fixed; width: 100%; z-index: 1000; box-sizing: border-box; height: 60px; border-bottom: 1px solid #222; }
+        nav { background: #000; padding: 0 5%; display: flex; align-items: center; position: fixed; width: 100%; z-index: 1000; height: 60px; border-bottom: 1px solid #222; box-sizing: border-box; }
         .logo { color: var(--primary); font-size: 22px; font-weight: bold; }
-
-        /* Ana İçerik Kaydırma */
-        .content { height: 100vh; overflow-y: auto; padding-top: 70px; box-sizing: border-box; padding-bottom: 50px; }
+        .content { height: 100vh; overflow-y: auto; padding-top: 70px; box-sizing: border-box; }
         .genre-row { padding-left: 5%; margin-bottom: 25px; }
         .genre-title { font-size: 1.1rem; margin-bottom: 10px; font-weight: bold; color: #ddd; }
-
-        /* Slider ve Kartlar */
-        .slider { display: flex; gap: 12px; overflow-x: auto; padding: 10px 0; scroll-behavior: smooth; }
+        .slider { display: flex; gap: 12px; overflow-x: auto; padding: 10px 0; }
         .slider::-webkit-scrollbar { display: none; }
-        .movie-card { min-width: 150px; max-width: 150px; outline: none; border: 2px solid transparent; border-radius: 4px; transition: 0.3s; background: #111; cursor: pointer; }
+        .movie-card { min-width: 150px; outline: none; border: 2px solid transparent; border-radius: 4px; background: #111; cursor: pointer; transition: 0.3s; }
         .movie-card img { width: 100%; height: 220px; object-fit: cover; border-radius: 4px; }
-        .movie-card:focus, .movie-card:hover { transform: scale(1.05); border-color: white; z-index: 10; }
-        .movie-name { font-size: 13px; margin: 6px 0; text-align: center; height: 34px; overflow: hidden; color: #aaa; padding: 0 5px; }
-
-        /* Detay Görünümü - Tam Duyarlı */
+        .movie-card:focus { transform: scale(1.05); border-color: white; }
+        .movie-name { font-size: 13px; text-align: center; height: 34px; overflow: hidden; color: #aaa; padding: 5px; }
         #detailView { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; display: none; }
-        .detail-banner { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; opacity: 0.4; z-index: -1; }
-        
-        .detail-info { 
-            position: relative; height: 100%; padding: 0 8%; 
-            display: flex; flex-direction: column; justify-content: center; 
-            gap: 15px; z-index: 2100; 
-            background: linear-gradient(to right, #000 40%, transparent 100%); 
-        }
-        
-        .detail-title { font-size: clamp(20px, 5vw, 40px); margin: 0; font-weight: bold; line-height: 1.1; max-width: 85%; }
-        .detail-desc { font-size: clamp(13px, 2vw, 16px); line-height: 1.4; color: #ccc; max-width: 450px; max-height: 100px; overflow-y: auto; margin: 0; }
-
-        .play-btn { background: white; color: black; border: none; padding: 12px 40px; font-size: 18px; font-weight: bold; border-radius: 4px; outline: none; cursor: pointer; width: fit-content; transition: 0.2s; margin-top: 10px; }
-        .play-btn:focus, .play-btn:hover { background: var(--primary); color: white; transform: scale(1.1); }
-
-        /* Video Player */
-        #player { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 5000; display: none; }
-        #player iframe { width: 100%; height: 100%; border: none; }
+        .detail-banner { position: absolute; width: 100%; height: 100%; background-size: cover; opacity: 0.4; z-index: -1; }
+        .detail-info { position: relative; height: 100%; padding: 0 8%; display: flex; flex-direction: column; justify-content: center; gap: 15px; background: linear-gradient(to right, #000 40%, transparent 100%); }
+        .detail-title { font-size: clamp(24px, 5vw, 40px); font-weight: bold; margin: 0; }
+        .detail-desc { font-size: 16px; color: #ccc; max-width: 500px; max-height: 100px; overflow-y: auto; }
+        .play-btn { background: white; color: black; border: none; padding: 12px 40px; font-size: 18px; font-weight: bold; border-radius: 4px; outline: none; cursor: pointer; }
+        .play-btn:focus { background: var(--primary); color: white; }
+        /* Oynatıcı Katmanı */
+        #playerLayer { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 5000; display: none; }
+        #ytPlayer { width: 100%; height: 100%; }
     </style>
 </head>
 <body onkeydown="handleGlobalKeys(event)">
 
 <nav><div class="logo">YouFlix</div></nav>
-
 <div id="mainContent" class="content"></div>
 <div id="detailView"><div id="detailDynamic"></div></div>
-<div id="player"><div id="videoContainer" style="width: 100%; height: 100%;"></div></div>
+
+<div id="playerLayer"><div id="ytPlayer"></div></div>
+
+<script src="https://www.youtube.com/iframe_api"></script>
 
 <script>
     let movies = [];
+    let player;
+
+    // API hazır olduğunda boş bir player oluşturur
+    function onYouTubeIframeAPIReady() {
+        console.log("YouTube API Hazır");
+    }
 
     function loadDatabase() {
         const xhr = new XMLHttpRequest();
@@ -85,69 +75,66 @@
                 });
             }
         });
-
         Object.keys(genres).sort().forEach(genre => {
             const row = document.createElement('div');
             row.className = 'genre-row';
             row.innerHTML = `<div class="genre-title">${genre}</div><div class="slider">${genres[genre].map(m => `
                 <div class="movie-card" tabindex="1" onclick="openDetail(${m.film_id})">
-                    <img data-src="${m.poster || m.yt_poster}" class="lazy-img" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=">
+                    <img src="${m.poster || m.yt_poster}">
                     <div class="movie-name">${m.film_adi}</div>
                 </div>`).join('')}</div>`;
             container.appendChild(row);
         });
-
-        initLazyLoading();
-    }
-
-    function initLazyLoading() {
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const img = entry.target;
-                    if(img.dataset.src) img.src = img.dataset.src;
-                    observer.unobserve(img);
-                }
-            });
-        }, { rootMargin: '0px 1000px 0px 1000px' });
-        document.querySelectorAll('.lazy-img').forEach(img => observer.observe(img));
     }
 
     function openDetail(id) {
         const m = movies.find(x => x.film_id === id);
         const ytId = m.yt_link.split('v=')[1];
-        
         document.getElementById('detailDynamic').innerHTML = `
             <div class="detail-banner" style="background-image: url('${m.afis || m.yt_poster}')"></div>
             <div class="detail-info">
-                <div style="color:#46d369; font-weight:bold; font-size:14px;">⭐ ${m.puan || 'N/A'} | ${m.kategori || 'Film'}</div>
                 <h1 class="detail-title">${m.film_adi}</h1>
-                <p class="detail-desc">${m.ozet || 'Özet bilgisi mevcut değil.'}</p>
+                <p class="detail-desc">${m.ozet || ''}</p>
                 <button id="playBtn" class="play-btn" tabindex="2" onclick="startVideo('${ytId}')">OYNAT</button>
             </div>`;
-        
         document.getElementById('detailView').style.display = 'block';
         setTimeout(() => document.getElementById('playBtn').focus(), 150);
     }
 
-    function startVideo(id) {
-        document.getElementById('player').style.display = 'block';
-        const origin = window.location.origin;
-        const ytUrl = `https://www.youtube.com/embed/${id}?autoplay=1&origin=${origin}&enablejsapi=1&rel=0`;
-        document.getElementById('videoContainer').innerHTML = `<iframe src="${ytUrl}" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+    function startVideo(videoId) {
+        document.getElementById('playerLayer').style.display = 'block';
+        
+        // Eğer player zaten varsa yok et ve yenisini oluştur (153 hatasını önler)
+        if (player) { player.destroy(); }
+
+        player = new YT.Player('ytPlayer', {
+            height: '100%',
+            width: '100%',
+            videoId: videoId,
+            playerVars: {
+                'autoplay': 1,
+                'origin': window.location.origin,
+                'enablejsapi': 1,
+                'rel': 0
+            },
+            events: {
+                'onReady': (event) => event.target.playVideo(),
+                'onError': (e) => alert("Hata Kodu: " + e.data) // Hata 150/153 ise burada yakalanır
+            }
+        });
     }
 
     function handleGlobalKeys(e) {
         if (e.key === "Backspace" || e.key === "Escape") {
-            if (document.getElementById('player').style.display === 'block') {
-                document.getElementById('player').style.display = 'none';
-                document.getElementById('videoContainer').innerHTML = '';
+            if (document.getElementById('playerLayer').style.display === 'block') {
+                if(player) player.stopVideo();
+                document.getElementById('playerLayer').style.display = 'none';
+                document.getElementById('playBtn').focus();
             } else if (document.getElementById('detailView').style.display === 'block') {
                 document.getElementById('detailView').style.display = 'none';
             }
         }
     }
-
     loadDatabase();
 </script>
 </body>
