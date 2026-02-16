@@ -27,14 +27,14 @@
         .movie-card:focus { transform: scale(1.08); border-color: white; z-index: 10; }
         .movie-name { font-size: 13px; margin: 6px 0; text-align: center; height: 34px; overflow: hidden; color: #aaa; padding: 0 5px; }
 
-        /* Detay Sayfası - Ekrana Sığma Sorunu Giderildi */
+        /* Detay Görünümü - Responsive ve Sığma Sorunu Çözüldü */
         #detailView { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; display: none; }
         .detail-banner { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; opacity: 0.4; z-index: -1; }
-        .detail-info { position: relative; height: 100%; padding: 0 8%; display: flex; flex-direction: column; justify-content: center; gap: 15px; z-index: 2100; background: linear-gradient(to right, #000 30%, transparent 100%); }
+        .detail-info { position: relative; height: 100%; padding: 0 8%; display: flex; flex-direction: column; justify-content: center; gap: 15px; z-index: 2100; background: linear-gradient(to right, #000 40%, transparent 100%); }
         
-        /* Dinamik Yazı Boyutları (Biçimsizliği giderir) */
-        .detail-title { font-size: clamp(24px, 5vw, 42px); margin: 0; font-weight: bold; line-height: 1.1; max-width: 80%; }
-        .detail-desc { font-size: clamp(14px, 2vw, 17px); line-height: 1.5; color: #ccc; max-width: 500px; max-height: 120px; overflow-y: auto; margin: 0; }
+        /* Yazı boyutları ekrana göre ölçeklenir (Biçimsizliği önler) */
+        .detail-title { font-size: clamp(20px, 5vw, 40px); margin: 0; font-weight: bold; line-height: 1.1; max-width: 80%; }
+        .detail-desc { font-size: clamp(13px, 2vw, 16px); line-height: 1.4; color: #ccc; max-width: 450px; max-height: 100px; overflow-y: auto; margin: 0; }
 
         .play-btn { background: white; color: black; border: none; padding: 12px 40px; font-size: 18px; font-weight: bold; border-radius: 4px; outline: none; cursor: pointer; width: fit-content; transition: 0.2s; }
         .play-btn:focus { background: var(--primary); color: white; transform: scale(1.1); }
@@ -116,7 +116,7 @@
         document.getElementById('detailDynamic').innerHTML = `
             <div class="detail-banner" style="background-image: url('${m.afis || m.yt_poster}')"></div>
             <div class="detail-info">
-                <div style="color:#46d369; font-weight:bold;">⭐ ${m.puan || 'N/A'} | ${m.kategori || 'Film'}</div>
+                <div style="color:#46d369; font-weight:bold; font-size:14px;">⭐ ${m.puan || 'N/A'} | ${m.kategori || 'Film'}</div>
                 <h1 class="detail-title">${m.film_adi}</h1>
                 <p class="detail-desc">${m.ozet || 'Özet bilgisi mevcut değil.'}</p>
                 <button id="playBtn" class="play-btn" tabindex="2" onclick="startVideo('${ytId}')">OYNAT</button>
@@ -128,9 +128,9 @@
 
     function startVideo(id) {
         document.getElementById('player').style.display = 'block';
-        // 153 Hatası Çözümü: GitHub Pages domainini origin olarak gönderiyoruz
         const origin = window.location.origin;
-        const ytUrl = `https://www.youtube.com/embed/${id}?autoplay=1&origin=${origin}&enablejsapi=1&rel=0`;
+        // YouTube'un sevdiği origin ve referrer parametreleri
+        const ytUrl = `https://www.youtube.com/embed/${id}?autoplay=1&origin=${origin}&enablejsapi=1&rel=0&widget_referrer=${origin}`;
         document.getElementById('videoContainer').innerHTML = `<iframe src="${ytUrl}" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
     }
 
