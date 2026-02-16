@@ -8,57 +8,39 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root { --primary: #e50914; --bg: #0a0a0a; }
-        body { background: var(--bg); color: white; font-family: Arial, sans-serif; margin: 0; overflow: hidden; }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', Arial, sans-serif; margin: 0; overflow: hidden; }
         
         /* Navbar */
-        nav { background: #000; padding: 0 5%; display: flex; align-items: center; gap: 20px; position: fixed; width: 100%; z-index: 1000; box-sizing: border-box; height: 60px; }
-        .logo { color: var(--primary); font-size: 24px; font-weight: bold; }
-        .nav-link { font-size: 16px; color: #888; cursor: pointer; padding: 5px 10px; border-radius: 4px; outline: none; border: 2px solid transparent; }
-        .nav-link:focus, .nav-link.active { color: white; background: rgba(255,255,255,0.1); border-color: var(--primary); }
+        nav { background: #000; padding: 0 5%; display: flex; align-items: center; justify-content: space-between; position: fixed; width: 100%; z-index: 1000; box-sizing: border-box; height: 60px; border-bottom: 1px solid #333; }
+        .logo { color: var(--primary); font-size: 22px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
+        .nav-link { font-size: 15px; color: #aaa; cursor: pointer; padding: 5px 12px; border-radius: 4px; outline: none; border: 2px solid transparent; text-decoration: none; }
+        .nav-link:focus, .nav-link.active { color: white; background: rgba(255,255,255,0.15); border-color: var(--primary); }
 
-        .content { height: 100vh; overflow-y: auto; padding-top: 70px; box-sizing: border-box; }
-        .genre-row { padding-left: 5%; margin-bottom: 20px; }
-        .genre-title { font-size: 18px; margin-bottom: 8px; font-weight: bold; color: #e5e5e5; }
+        .content { height: 100vh; overflow-y: auto; padding: 80px 0 30px 0; box-sizing: border-box; }
+        .genre-row { padding-left: 5%; margin-bottom: 25px; }
+        .genre-title { font-size: 1.2rem; margin-bottom: 10px; font-weight: 600; color: #efefef; }
 
         /* Slider ve Kartlar */
-        .slider { display: flex; gap: 12px; overflow-x: auto; padding: 10px 0; scroll-behavior: smooth; }
+        .slider { display: flex; gap: 15px; overflow-x: auto; padding: 10px 0; scroll-behavior: smooth; }
         .slider::-webkit-scrollbar { display: none; }
-        .movie-card { min-width: 140px; max-width: 140px; outline: none; border: 2px solid transparent; border-radius: 6px; transition: 0.2s; background: #1a1a1a; cursor: pointer; }
-        .movie-card img { width: 100%; height: 200px; object-fit: cover; border-radius: 4px; }
-        .movie-card:focus { transform: scale(1.05); border-color: white; z-index: 10; }
-        .movie-name { font-size: 12px; margin-top: 5px; text-align: center; height: 30px; overflow: hidden; color: #ccc; padding: 0 4px; }
+        .movie-card { min-width: 150px; max-width: 150px; outline: none; border: 2px solid transparent; border-radius: 8px; transition: transform 0.3s; background: #141414; cursor: pointer; }
+        .movie-card img { width: 100%; height: 210px; object-fit: cover; border-radius: 6px; }
+        .movie-card:focus { transform: scale(1.08); border-color: #fff; box-shadow: 0 0 15px rgba(0,0,0,0.5); }
+        .movie-name { font-size: 13px; margin: 8px 0; text-align: center; height: 32px; overflow: hidden; color: #bbb; padding: 0 5px; }
 
-        /* Detay Görünümü - Tam Duyarlı (Responsive) */
-        #detailView { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: #000; z-index: 2000; display: none; overflow-y: auto; 
-        }
-        .detail-banner { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background-size: cover; background-position: center; opacity: 0.3; z-index: -1;
-        }
-        .detail-info { 
-            padding: 80px 7% 40px 7%; 
-            max-width: 85%; 
-            position: relative; z-index: 2100;
-            display: flex; flex-direction: column; gap: 15px;
-        }
+        /* Detay Görünümü - Sığma Sorunu Giderildi */
+        #detailView { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; display: none; overflow-y: auto; }
+        .detail-banner { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; opacity: 0.4; z-index: -1; }
+        .detail-info { padding: 70px 7% 50px 7%; max-width: 90%; position: relative; z-index: 2100; box-sizing: border-box; }
         
-        /* Dinamik Yazı Boyutları */
-        .detail-title { font-size: clamp(24px, 6vw, 42px); margin: 0; font-weight: bold; line-height: 1.1; }
-        .detail-meta { font-size: 16px; color: var(--primary); font-weight: bold; }
-        .detail-desc { 
-            font-size: clamp(14px, 2.5vw, 18px); line-height: 1.5; color: #ccc; 
-            max-width: 600px; max-height: 150px; overflow-y: auto; margin: 0;
-        }
+        /* Akıllı Yazı Boyutları */
+        .detail-title { font-size: clamp(22px, 5vw, 48px); margin: 10px 0; font-weight: 800; line-height: 1.2; }
+        .detail-desc { font-size: clamp(14px, 2vw, 18px); line-height: 1.6; color: #ddd; margin: 15px 0; max-height: 20vh; overflow-y: auto; padding-right: 10px; }
+        .detail-desc::-webkit-scrollbar { width: 4px; }
+        .detail-desc::-webkit-scrollbar-thumb { background: #444; }
 
-        .play-btn { 
-            background: white; color: black; border: none; 
-            padding: 12px 40px; font-size: 20px; font-weight: bold; 
-            border-radius: 6px; outline: none; cursor: pointer; 
-            width: fit-content; transition: 0.2s;
-        }
-        .play-btn:focus { background: var(--primary); color: white; transform: scale(1.1); }
+        .play-btn { background: #fff; color: #000; border: none; padding: 12px 35px; font-size: 18px; font-weight: bold; border-radius: 4px; outline: none; cursor: pointer; display: flex; align-items: center; gap: 10px; margin-top: 20px; transition: 0.2s; }
+        .play-btn:focus { background: var(--primary); color: #fff; transform: scale(1.1); }
 
         /* Video Player */
         #player { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 5000; display: none; }
@@ -74,7 +56,7 @@
 
 <div id="mainContent" class="content"></div>
 <div id="detailView"><div id="detailDynamic"></div></div>
-<div id="player"><div id="videoContainer" style="width: 100%; height: 100%;"></div></div>
+<div id="player"><div id="videoContainer"></div></div>
 
 <script>
     let movies = [];
@@ -141,7 +123,7 @@
         document.getElementById('detailDynamic').innerHTML = `
             <div class="detail-banner" style="background-image: url('${m.afis || m.yt_poster}')"></div>
             <div class="detail-info">
-                <div class="detail-meta">${m.kategori || ''} | ⭐ ${m.puan || 'N/A'}</div>
+                <div style="color:var(--primary); font-weight:bold; font-size:14px; margin-bottom:5px;">⭐ ${m.puan || 'N/A'} | ${m.kategori || ''}</div>
                 <h1 class="detail-title">${m.film_adi}</h1>
                 <p class="detail-desc">${m.ozet || 'Özet bulunamadı.'}</p>
                 <button id="playBtn" class="play-btn" tabindex="3" onclick="startVideo('${ytId}')">
@@ -153,7 +135,7 @@
         setTimeout(() => {
             const btn = document.getElementById('playBtn');
             btn.focus();
-            btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            document.getElementById('detailView').scrollTo({top: 0, behavior: 'smooth'});
         }, 150);
     }
 
@@ -161,10 +143,7 @@
         document.getElementById('player').style.display = 'block';
         const origin = window.location.origin;
         const ytUrl = `https://www.youtube.com/embed/${id}?autoplay=1&origin=${origin}&enablejsapi=1&rel=0`;
-        
-        document.getElementById('videoContainer').innerHTML = `
-            <iframe src="${ytUrl}" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-        `;
+        document.getElementById('videoContainer').innerHTML = `<iframe src="${ytUrl}" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
     }
 
     function handleGlobalKeys(e) {
