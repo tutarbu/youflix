@@ -2,57 +2,179 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>YouFlix TV</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouFlix - Web & Mobile</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        :root { --primary: #e50914; --bg: #000; }
-        body { background: var(--bg); color: white; font-family: 'Segoe UI', Arial, sans-serif; margin: 0; overflow: hidden; }
-        nav { background: #000; padding: 0 5%; display: flex; align-items: center; position: fixed; width: 100%; z-index: 1000; height: 60px; border-bottom: 1px solid #222; box-sizing: border-box; }
-        .logo { color: var(--primary); font-size: 22px; font-weight: bold; }
-        .content { height: 100vh; overflow-y: auto; padding-top: 70px; box-sizing: border-box; }
-        .genre-row { padding-left: 5%; margin-bottom: 25px; }
-        .genre-title { font-size: 1.1rem; margin-bottom: 10px; font-weight: bold; color: #ddd; }
-        .slider { display: flex; gap: 12px; overflow-x: auto; padding: 10px 0; }
-        .slider::-webkit-scrollbar { display: none; }
-        .movie-card { min-width: 150px; outline: none; border: 2px solid transparent; border-radius: 4px; background: #111; cursor: pointer; transition: 0.3s; }
-        .movie-card img { width: 100%; height: 220px; object-fit: cover; border-radius: 4px; }
-        .movie-card:focus { transform: scale(1.05); border-color: white; }
-        .movie-name { font-size: 13px; text-align: center; height: 34px; overflow: hidden; color: #aaa; padding: 5px; }
-        #detailView { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; display: none; }
-        .detail-banner { position: absolute; width: 100%; height: 100%; background-size: cover; opacity: 0.4; z-index: -1; }
-        .detail-info { position: relative; height: 100%; padding: 0 8%; display: flex; flex-direction: column; justify-content: center; gap: 15px; background: linear-gradient(to right, #000 40%, transparent 100%); }
-        .detail-title { font-size: clamp(24px, 5vw, 40px); font-weight: bold; margin: 0; }
-        .detail-desc { font-size: 16px; color: #ccc; max-width: 500px; max-height: 100px; overflow-y: auto; }
-        .play-btn { background: white; color: black; border: none; padding: 12px 40px; font-size: 18px; font-weight: bold; border-radius: 4px; outline: none; cursor: pointer; }
-        .play-btn:focus { background: var(--primary); color: white; }
+        :root { 
+            --primary: #e50914; 
+            --bg: #141414; 
+            --card-width: 200px;
+            --card-height: 300px;
+        }
+        
+        body { 
+            background: var(--bg); 
+            color: white; 
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
+            margin: 0; 
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* Navbar */
+        nav { 
+            background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 100%);
+            padding: 20px 4%; 
+            display: flex; 
+            align-items: center; 
+            position: fixed; 
+            width: 100%; 
+            z-index: 1000; 
+            box-sizing: border-box;
+            transition: background 0.3s;
+        }
+        .logo { color: var(--primary); font-size: 28px; font-weight: bold; letter-spacing: 1px; }
+
+        /* Main Content */
+        .content { padding: 80px 4% 20px 4%; }
+
+        .genre-row { margin-bottom: 40px; }
+        .genre-title { 
+            font-size: 1.4rem; 
+            margin-bottom: 15px; 
+            font-weight: 500; 
+            color: #e5e5e5;
+        }
+
+        /* Responsive Slider */
+        .slider { 
+            display: grid;
+            grid-auto-flow: column;
+            grid-auto-columns: var(--card-width);
+            gap: 10px;
+            overflow-x: auto; 
+            padding: 10px 0;
+            scroll-behavior: smooth;
+        }
+        .slider::-webkit-scrollbar { height: 5px; }
+        .slider::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+
+        /* Movie Cards */
+        .movie-card { 
+            position: relative;
+            border-radius: 4px; 
+            background: #111; 
+            cursor: pointer; 
+            transition: transform 0.3s ease;
+            overflow: hidden;
+        }
+        .movie-card img { 
+            width: 100%; 
+            height: var(--card-height); 
+            object-fit: cover; 
+        }
+        .movie-card:hover { transform: scale(1.05); z-index: 2; }
+        
+        .movie-info-mini {
+            padding: 8px;
+            font-size: 14px;
+            background: #181818;
+            text-align: center;
+        }
+
+        /* Detail Overlay */
+        #detailView { 
+            position: fixed; 
+            top: 0; left: 0; 
+            width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.9); 
+            z-index: 2000; 
+            display: none; 
+            align-items: center; 
+            justify-content: center;
+        }
+        .detail-container {
+            width: 90%;
+            max-width: 900px;
+            background: #181818;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+        }
+        .detail-banner { 
+            width: 100%; 
+            height: 400px; 
+            background-size: cover; 
+            background-position: center;
+            position: relative;
+        }
+        .detail-banner::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; width: 100%; height: 50%;
+            background: linear-gradient(to top, #181818, transparent);
+        }
+        .detail-info { padding: 30px; margin-top: -100px; position: relative; z-index: 5; }
+        .detail-title { font-size: 3rem; margin: 0 0 10px 0; }
+        .detail-meta { margin-bottom: 20px; color: #46d369; font-weight: bold; }
+        .detail-desc { font-size: 1.1rem; line-height: 1.5; color: #ccc; max-width: 600px; }
+        
+        .btn-group { display: flex; gap: 15px; margin-top: 25px; }
+        .play-btn { 
+            background: white; color: black; border: none; 
+            padding: 12px 30px; font-size: 1.1rem; font-weight: bold; 
+            border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 10px;
+        }
+        .play-btn:hover { background: rgba(255,255,255,0.7); }
+        .close-btn { 
+            position: absolute; top: 20px; right: 20px; 
+            background: rgba(0,0,0,0.5); color: white; border: none; 
+            width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 20px;
+            z-index: 10;
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 768px) {
+            :root { --card-width: 140px; --card-height: 200px; }
+            .detail-title { font-size: 1.8rem; }
+            .detail-banner { height: 250px; }
+            .detail-info { margin-top: -50px; }
+        }
     </style>
 </head>
-<body onkeydown="handleGlobalKeys(event)">
+<body>
 
-<nav><div class="logo">YouFlix</div></nav>
+<nav><div class="logo">YOUFLIX</div></nav>
+
 <div id="mainContent" class="content"></div>
-<div id="detailView"><div id="detailDynamic"></div></div>
+
+<div id="detailView" onclick="closeDetail(event)">
+    <div class="detail-container" onclick="event.stopPropagation()">
+        <button class="close-btn" onclick="document.getElementById('detailView').style.display='none'"><i class="fas fa-times"></i></button>
+        <div id="detailDynamic"></div>
+    </div>
+</div>
 
 <script>
     let movies = [];
 
-    function loadDatabase() {
-        const xhr = new XMLHttpRequest();
-        xhr.open("GET", "youtube_filmleri_pro_database.json", true);
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-                movies = JSON.parse(xhr.responseText);
-                showHome();
-            }
-        };
-        xhr.send();
+    // Veritabanını Yükle
+    async function loadDatabase() {
+        try {
+            const response = await fetch('youtube_filmleri_pro_database.json');
+            movies = await response.json();
+            renderHome();
+        } catch (error) {
+            console.error("Veri yüklenemedi:", error);
+        }
     }
 
-    function showHome() {
+    function renderHome() {
         const container = document.getElementById('mainContent');
-        container.innerHTML = '';
         const genres = {};
+        
         movies.forEach(m => {
             if (m.tur) {
                 m.tur.split(',').forEach(t => {
@@ -62,48 +184,65 @@
                 });
             }
         });
-        Object.keys(genres).sort().forEach(genre => {
-            const row = document.createElement('div');
-            row.className = 'genre-row';
-            row.innerHTML = `<div class="genre-title">${genre}</div><div class="slider">${genres[genre].map(m => `
-                <div class="movie-card" tabindex="1" onclick="openDetail(${m.film_id})">
-                    <img src="${m.poster || m.yt_poster}">
-                    <div class="movie-name">${m.film_adi}</div>
-                </div>`).join('')}</div>`;
-            container.appendChild(row);
-        });
+
+        container.innerHTML = Object.keys(genres).sort().map(genre => `
+            <div class="genre-row">
+                <div class="genre-title">${genre}</div>
+                <div class="slider">
+                    ${genres[genre].map(m => `
+                        <div class="movie-card" onclick="openDetail(${m.film_id})">
+                            <img src="${m.poster || m.yt_poster}" alt="${m.film_adi}">
+                            <div class="movie-info-mini">${m.film_adi}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `).join('');
     }
 
     function openDetail(id) {
         const m = movies.find(x => x.film_id === id);
-        // YouTube ID'sini linkten ayıkla
         const ytId = m.yt_link.split('v=')[1];
+        
         document.getElementById('detailDynamic').innerHTML = `
             <div class="detail-banner" style="background-image: url('${m.afis || m.yt_poster}')"></div>
             <div class="detail-info">
                 <h1 class="detail-title">${m.film_adi}</h1>
-                <p class="detail-desc">${m.ozet || ''}</p>
-                <button id="playBtn" class="play-btn" tabindex="2" onclick="startVideo('${ytId}')">YOUTUBE'DA AÇ</button>
+                <div class="detail-meta">${m.puan || 'N/A'} Puan • ${m.yil || ''}</div>
+                <p class="detail-desc">${m.ozet || 'Özet bulunmuyor.'}</p>
+                <div class="btn-group">
+                    <button class="play-btn" onclick="redirectToYoutube('${ytId}')">
+                        <i class="fas fa-play"></i> Oynat
+                    </button>
+                    <button class="play-btn" style="background: rgba(109, 109, 110, 0.7); color: white;" onclick="redirectToYoutube('${ytId}')">
+                        <i class="fas fa-tv"></i> TV'de Aç
+                    </button>
+                </div>
             </div>`;
-        document.getElementById('detailView').style.display = 'block';
-        setTimeout(() => document.getElementById('playBtn').focus(), 150);
+        document.getElementById('detailView').style.display = 'flex';
     }
 
-    function startVideo(videoId) {
-        // Doğrudan YouTube linkine yönlendir
-        // Mobil cihazlarda uygulama yüklüyse otomatik olarak uygulama açılır.
-        const youtubeUrl = `https://www.youtube.com/watch?v=${videoId}`;
-        window.location.href = youtubeUrl;
+    function redirectToYoutube(videoId) {
+        // Bu link mobilde YouTube uygulamasını, TV tarayıcısında YouTube TV modunu tetikler.
+        const url = `https://www.youtube.com/watch?v=${videoId}`;
+        window.open(url, '_blank');
     }
 
-    function handleGlobalKeys(e) {
-        if (e.key === "Backspace" || e.key === "Escape") {
-            if (document.getElementById('detailView').style.display === 'block') {
-                document.getElementById('detailView').style.display = 'none';
-            }
+    function closeDetail(e) {
+        if(e.target.id === 'detailView') {
+            document.getElementById('detailView').style.display = 'none';
         }
     }
+
+    // Başlat
     loadDatabase();
+
+    // Scroll efekti için navbar
+    window.addEventListener('scroll', () => {
+        const nav = document.querySelector('nav');
+        if (window.scrollY > 50) nav.style.background = '#141414';
+        else nav.style.background = 'linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 100%)';
+    });
 </script>
 </body>
 </html>
